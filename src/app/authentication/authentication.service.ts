@@ -16,6 +16,10 @@ export class AuthenticationService {
         return !!this.localStorageService.get(USERNAME_KEY);
     }
 
+    getUsername(): string {
+        return this.localStorageService.get(USERNAME_KEY);
+    }
+
     logIn(username: string): Observable<boolean> {
         this.localStorageService.set(USERNAME_KEY, username);
         return Observable.of(true);

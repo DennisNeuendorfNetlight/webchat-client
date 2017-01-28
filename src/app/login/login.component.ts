@@ -1,8 +1,9 @@
 import { Component } from '@angular/core';
-import * as socketIo from 'socket.io-client';
 import { FormGroup, FormControl, Validators } from '@angular/forms';
-import { AuthenticationService } from '../authentication/authentication.service';
+import { Router } from '@angular/router';
 import { Subject } from 'rxjs';
+import { AuthenticationService } from '../authentication/authentication.service';
+
 
 @Component({
     selector: 'login',
@@ -10,7 +11,7 @@ import { Subject } from 'rxjs';
 })
 export class LoginComponent {
 
-    constructor(private auth: AuthenticationService) {
+    constructor(private auth: AuthenticationService, router: Router) {
         this.loginForm = new FormGroup({
             username: new FormControl("", Validators.required),
         });
@@ -19,8 +20,8 @@ export class LoginComponent {
             auth.logIn(value.username).subscribe(
                 success => {
                     if(success){
-                        //this.router.navigate([decodeURIComponent(this.redirectTo)],{queryParams:{}});
-                        console.log("loggedin");
+                        router.navigate(['chat']);
+                        //console.log("loggedin");
                     }
             });             
         });
@@ -29,6 +30,4 @@ export class LoginComponent {
     private login: Subject<{value:any, event:any}> = new Subject<{value:boolean,event:any}>();
 
     private loginForm: FormGroup;
-
-    title = "Horsy's - RainbowChat";
 }
