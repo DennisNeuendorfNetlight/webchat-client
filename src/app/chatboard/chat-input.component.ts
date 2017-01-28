@@ -1,7 +1,8 @@
 import { Component, Input } from '@angular/core';
 import { FormGroup, FormControl, Validators } from '@angular/forms';
 import { Subject } from 'rxjs';
-import { SocketIOService } from '../socket/socket-io.service';
+import { Store } from '@ngrx/store';
+import { SendMessageAction } from '../effects/message-effects';
 
 @Component({
     selector: 'chat-input',
@@ -11,12 +12,13 @@ export class ChatInputComponent {
 
 	@Input() user:string;
 
-    constructor(private socket: SocketIOService) {
+    constructor(private appStateStore:Store<any>) {
         this.chatInputForm = new FormGroup({
             message: new FormControl("", Validators.required),
         });
         this.send.subscribe((value:any) => {
-            socket.send('chat', { name: this.user, text: value.message, timestamp: new Date() });       
+			const message = { sender: this.user, recipient: "*", message: value.message, timestamp: new Date() }
+            this.appStateStore.dispatch(new SendMessageAction(message));
         });
     }
 

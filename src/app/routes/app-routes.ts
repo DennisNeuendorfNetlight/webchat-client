@@ -17,7 +17,5 @@ export const AppRoutes: Route[] = [
         path: "",
         redirectTo: "/home",
         pathMatch: 'full'
-    },
-    
-    
+    }
 ];

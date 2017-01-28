@@ -1,5 +1,8 @@
 import { Component } from '@angular/core';
+import { Store } from '@ngrx/store';
 import { AuthenticationService } from '../authentication/authentication.service';
+import { IndexedDbService } from '../persistence/indexed-db.service';
+import { InitMessageStoreAction } from '../effects/message-effects';
 
 @Component({
     selector: 'chatboard',
@@ -7,6 +10,8 @@ import { AuthenticationService } from '../authentication/authentication.service'
 })
 export class ChatboardComponent {
 
-    constructor(private auth: AuthenticationService) {}
+    constructor(private appStateStore:Store<any>, private auth: AuthenticationService) {
+		this.appStateStore.dispatch(new InitMessageStoreAction());
+	}
 
 }
