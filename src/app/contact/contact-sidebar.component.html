@@ -1,0 +1,7 @@
+<div id="sidebar-wrapper" class="sidebar-toggle">
+	<ul class="sidebar-nav">
+		<li *ngFor="let contact of (contacts|async)">
+			<a>{{contact.username|shortenUsername}}</a>
+		</li>
+	</ul>
+</div>

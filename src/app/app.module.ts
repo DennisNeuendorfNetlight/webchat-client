@@ -1,8 +1,11 @@
 import { BrowserModule } from '@angular/platform-browser';
 import { AppComponent } from './app.component';
 import { LoginComponent } from './login/login.component';
-import { ChatboardComponent } from "./chatboard/chatboard.component";
-import { ChatInputComponent } from "./chatboard/chat-input.component";
+import { ChatboardComponent } from './chatboard/chatboard.component';
+import { ChatInputComponent } from './chatboard/chat-input.component';
+import { ContactSidebarComponent } from './contact/contact-sidebar.component';
+
+import { UsernamePipe } from './pipes/username-pipe';
 
 import { NgModule } from '@angular/core';
 import { FormsModule } from '@angular/forms';
@@ -10,8 +13,8 @@ import { HttpModule } from '@angular/http';
 import { RouterModule } from '@angular/router';
 import { ReactiveFormsModule } from '@angular/forms'
 import { StoreModule } from '@ngrx/store';
-import { StoreDevtoolsModule } from "@ngrx/store-devtools";
-import { StoreLogMonitorModule, useLogMonitor } from "@ngrx/store-log-monitor";
+import { StoreDevtoolsModule } from '@ngrx/store-devtools';
+import { StoreLogMonitorModule, useLogMonitor } from '@ngrx/store-log-monitor';
 import { AppRoutes } from './routes/app-routes';
 import { reducer } from './reducer';
 import { EffectsModule } from '@ngrx/effects';
@@ -28,7 +31,9 @@ import { AuthGuard } from './authentication/auth-guard';
     AppComponent,
     LoginComponent,
     ChatboardComponent,
-    ChatInputComponent
+    ChatInputComponent,
+    ContactSidebarComponent,
+    UsernamePipe
   ],
   imports: [
     BrowserModule,

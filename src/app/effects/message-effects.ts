@@ -45,10 +45,12 @@ export class MessageEffects {
 	@Effect() init_message_store$ = this.actions$
       .ofType(INIT_MESSAGE_STORE)
 	  .map((action) => <string>action.payload)
-	  .switchMap( (username) => this.db.initializeDB(username)
-	  	.do(message => console.log(message))
-		.map(message => (new AddSentMessageAction(message)))		
-        // If request fails, dispatch failed action
-        .catch(() => Observable.of({ type: 'INIT_MESSAGE_FAILED' }))
-      );
+	  .switchMap( (username) => {
+		  this.socket.setUsername(username);
+		  return this.db.initializeDB(username)
+			.do(message => console.log(message))
+			.map(message => (new AddSentMessageAction(message)))		
+			// If request fails, dispatch failed action
+			.catch(() => Observable.of({ type: 'INIT_MESSAGE_FAILED' }))
+	  });
 }
