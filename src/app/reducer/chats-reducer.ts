@@ -20,7 +20,11 @@ export const chatsReducer: ActionReducer<Chats> = (state={}, {type,payload}) => 
         case ADD_SENT_MESSAGE:
         case ADD_RECEIVED_MESSAGE:{
 			let key = type === ADD_SENT_MESSAGE ? (<Message>payload).recipient : (<Message>payload).sender;
-            return Object.assign({},state,{ [key]: [...(state[key]||[]),payload].sort((a:Message,b:Message)=>a.timestamp<b.timestamp?-1:a.timestamp>b.timestamp?1:0)});
+            return Object.assign({},state,{ [key]: [...(state[key]||[]),payload].sort((a, b) => {
+                a = new Date(a.timestamp);
+                b = new Date(b.timestamp);
+                return a>b ? 1 : a<b ? -1 : 0;
+            })})
         }
     }
     return state;

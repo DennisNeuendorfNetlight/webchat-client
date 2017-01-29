@@ -1,0 +1,48 @@
+$receiver_base_color: #FF7979;
+$sender_base_color: #91eda5;
+
+.message {
+	position:relative;
+	padding:15px;
+	margin:1em 0 1em;
+	color:#000;
+	background:$receiver_base_color; 
+	border-radius:10px;
+	margin-left:50px;
+}
+
+.receiver {
+  background:$receiver_base_color;
+}
+
+.receiver:after {
+  top:16px; /* controls vertical position */
+  left:-50px; /* value = - border-left-width - border-right-width */
+  bottom:auto;
+  border-width:10px 50px 10px 0;
+  border-color:transparent $receiver_base_color;
+  content:"";
+  position:absolute;
+  border-style:solid;
+  display:block;
+  width:0;
+}
+
+.sender  {
+	left: -50px;
+  	background: $sender_base_color;
+}
+
+.sender:after {
+  content:"";
+  position:absolute;
+  border-style:solid;
+  display:block;
+  width:0;
+  top:16px; /* controls vertical position */
+  right:-50px; /* value = - border-left-width - border-right-width */
+  bottom:auto;
+  left:auto;
+  border-width:10px 0 10px 50px;
+  border-color:transparent $sender_base_color;
+}

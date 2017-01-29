@@ -1,0 +1,5 @@
+<div>
+	<p *ngFor="let message of (messages$|async)" class="message"[class.sender]="message.sender === user" [class.receiver]="message.recipient === user">
+		{{message.sender|shortenUsername}}: {{message.message}}
+	</p>
+</div>

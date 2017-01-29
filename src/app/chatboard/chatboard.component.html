@@ -1,5 +1,5 @@
 <contact-sidebar [selectedContact]="selectedContact$|async"></contact-sidebar>
 <div *ngIf="!!(selectedContact$|async)" class="chat-content">
-	<!--<chat-flow [selectedContact]="selectedContact$|async"></chat-flow>-->
+	<chat-flow [user]="auth.getUsername()" ></chat-flow>
 	<chat-input [user]="auth.getUsername()" [selectedContact]="selectedContact$|async"></chat-input>
 <div>

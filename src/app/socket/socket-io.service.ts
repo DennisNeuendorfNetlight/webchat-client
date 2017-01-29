@@ -1,7 +1,9 @@
 import { Injectable } from "@angular/core";
 import * as socketIo from 'socket.io-client';
 import { Store } from '@ngrx/store';
-import { Contact, AddContactAction } from '../reducer/contacts-reducer';
+import { AddContactAction } from '../reducer/contacts-reducer';
+import { ReceiveMessageAction } from '../effects/message-effects';
+import { Contact } from '../models';
 
 @Injectable()
 export class SocketIOService{
@@ -19,13 +21,12 @@ export class SocketIOService{
 			}
 		 });
 		 this.socket.on('clients', (clients) => {
-			console.log('clients', clients);
 			if(clients && clients.length > 0)
 				clients.filter((client) => client.username != this.username)
 					.every((client) => this.appStateStore.dispatch(new AddContactAction(client)));
 		 });
 		 this.socket.on('chat', (message) => {
-			console.log('chat', message);
+			this.appStateStore.dispatch(new ReceiveMessageAction(message))
 		 });
     }
 

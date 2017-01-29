@@ -4,6 +4,7 @@ import { LoginComponent } from './login/login.component';
 import { ChatboardComponent } from './chatboard/chatboard.component';
 import { ChatInputComponent } from './chatboard/chat-input.component';
 import { ContactSidebarComponent } from './contact/contact-sidebar.component';
+import { ChatFlowComponent } from './chatboard/chat-flow.component';
 
 import { UsernamePipe } from './pipes/username-pipe';
 
@@ -33,6 +34,7 @@ import { AuthGuard } from './authentication/auth-guard';
     ChatboardComponent,
     ChatInputComponent,
     ContactSidebarComponent,
+    ChatFlowComponent,
     UsernamePipe
   ],
   imports: [
