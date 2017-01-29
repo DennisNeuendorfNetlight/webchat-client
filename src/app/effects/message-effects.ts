@@ -4,6 +4,7 @@ import { Actions, Effect } from '@ngrx/effects';
 import { Observable } from 'rxjs/Observable';
 import { IndexedDbService } from '../persistence/indexed-db.service';
 import { SocketIOService } from '../socket/socket-io.service';
+import { RsaWorkerCommService } from '../rsa/rsa-worker-comm.service';
 import { Message } from '../models';
 import { AddSentMessageAction, AddReceivedMessageAction } from '../reducer/chats-reducer';
 import { Action } from '@ngrx/store';
@@ -35,7 +36,8 @@ export class MessageEffects {
     private http: Http,
     private actions$: Actions,
 	private db: IndexedDbService,
-	private socket: SocketIOService
+	private socket: SocketIOService,
+	private rsa: RsaWorkerCommService
   ) { }
 
 	@Effect() send_message$ = this.actions$
@@ -62,10 +64,13 @@ export class MessageEffects {
 	@Effect() init_message_store$ = this.actions$
       .ofType(INIT_MESSAGE_STORE)
 	  .map((action) => <string>action.payload)
-	  .switchMap( (username) => {
-		  this.socket.setUsername(username);
-		  return this.db.initializeDB(username)
-			.do(message => console.log('message',message))
+	  .switchMap( (username) => 
+		  this.rsa.getKeys(username)
+		  .map(keys => {	
+			  return { username, publicKey: keys.publicKey};
+			})
+		  .do((userdata) => this.socket.setUserdata(userdata))
+		  .flatMap(() => this.db.initializeDB(username))
 			.map(message => {
 				if(username===message.sender){
 					return new AddSentMessageAction(message);
@@ -79,5 +84,5 @@ export class MessageEffects {
 			})		
 			// If request fails, dispatch failed action
 			.catch(() => Observable.of({ type: 'INIT_MESSAGE_FAILED' }))
-	  });
+	  );
 }

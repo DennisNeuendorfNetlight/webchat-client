@@ -25,6 +25,7 @@ import { LocalStorageService } from './persistence/local-storage.service';
 import { IndexedDbService } from './persistence/indexed-db.service';
 import { AuthenticationService } from './authentication/authentication.service';
 import { SocketIOService } from './socket/socket-io.service';
+import { RsaWorkerCommService } from './rsa/rsa-worker-comm.service';
 import { AuthGuard } from './authentication/auth-guard';
 
 @NgModule({
@@ -54,7 +55,8 @@ import { AuthGuard } from './authentication/auth-guard';
     IndexedDbService,
     AuthenticationService,
     AuthGuard,
-    SocketIOService
+    SocketIOService,
+    RsaWorkerCommService
   ],
   bootstrap: [AppComponent]
 })
