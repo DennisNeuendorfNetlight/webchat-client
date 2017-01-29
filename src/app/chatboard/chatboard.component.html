@@ -1,3 +1,5 @@
-<h1>ChatBoard</h1>
-<contact-sidebar></contact-sidebar>
-<chat-input [user]="auth.getUsername()"></chat-input>
+<contact-sidebar [selectedContact]="selectedContact$|async"></contact-sidebar>
+<div *ngIf="!!(selectedContact$|async)" class="chat-content">
+	<!--<chat-flow [selectedContact]="selectedContact$|async"></chat-flow>-->
+	<chat-input [user]="auth.getUsername()" [selectedContact]="selectedContact$|async"></chat-input>
+<div>

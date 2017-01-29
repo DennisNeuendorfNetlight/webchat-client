@@ -1,8 +1,5 @@
 import { ActionReducer, Action } from '@ngrx/store';
-import { Message } from '../models/message';
-export interface Chats{
-    [recipient: string]:Message[];
-}
+import { Message, Chats } from '../models';
 
 export const ADD_SENT_MESSAGE = 'ADD_SENT_MESSAGE';
 

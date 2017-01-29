@@ -1,5 +1,7 @@
 import { Injectable } from '@angular/core';
 import { Observable, Subject } from 'rxjs';
+import { Message } from '../models';
+
 const OUTGOING_MESSAGES_KEY = 'OutgoingMessages';
 
 @Injectable()
@@ -13,8 +15,8 @@ export class IndexedDbService {
     	let indexedDB = window.indexedDB; // || window.mozIndexedDB || window.webkitIndexedDB || window.msIndexedDB;
 	}
 
-	initializeDB(username:string): Observable<any> {
-		var subject: Subject<any> = new Subject<any>();
+	initializeDB(username:string): Observable<Message> {
+		var subject: Subject<Message> = new Subject<Message>();
 		let request = indexedDB.open(username);
 			
 		request.onupgradeneeded = () => {
@@ -27,14 +29,14 @@ export class IndexedDbService {
 		}
 		request.onsuccess = () => {
 			this.db = request.result;
-			this.getOutgoingMessages().flatMap((messageList) => Observable.from(messageList)).subscribe((message) => subject.next(message),(error) =>subject.error(error),() =>subject.complete());
+			this.getOutgoingMessages().flatMap((messageList: Message[]) => Observable.from(messageList)).subscribe((message) => subject.next(message),(error) =>subject.error(error),() =>subject.complete());
 		}
 		request.onerror = (event) => alert('Could not initialize IndexedDB');
 		return subject;
 	}
 	
 
-    persistOutgoingMessage(message: any): Observable<void>{
+    persistOutgoingMessage(message: Message): Observable<void>{
 		var persistSubject: Subject<void> = new Subject<void>();
 	   	var tx = this.db.transaction(OUTGOING_MESSAGES_KEY, 'readwrite');
 		var store = tx.objectStore(OUTGOING_MESSAGES_KEY);
@@ -50,8 +52,8 @@ export class IndexedDbService {
 		return persistSubject;
     }
 
-    getOutgoingMessages(recipient?):Observable<any> {
-		var subject: Subject<any> = new Subject<any>();
+	getOutgoingMessages(recipient?):Observable<Message[]> {
+		var subject: Subject<Message[]> = new Subject<Message[]>();
         var tx = this.db.transaction(OUTGOING_MESSAGES_KEY, 'readonly');
 		var store = tx.objectStore(OUTGOING_MESSAGES_KEY);
 		if(!recipient){

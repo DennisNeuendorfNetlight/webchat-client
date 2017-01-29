@@ -27,11 +27,13 @@ footer{
 
 }
 
+h1 {
+    text-align: center;
+}
+
 #sidebar-wrapper {
-  top: 52px;
-  left: -200px;
   width: 200px;
-  background-color: #5677fc;
+  background-color: #565C98;
   color: white;
   position: fixed;
   height: 100%;
@@ -42,7 +44,7 @@ footer{
   top: 0;
   margin: 0;
   padding: 0;
-  width: 250px;
+  width: 200px;
   list-style: none;
 }
 .sidebar-nav li {
@@ -54,8 +56,13 @@ footer{
   display: block;
   text-decoration: none;
 }
+
+.selected-contact {
+     background: #7473BD;
+}
+
 .sidebar-nav li a:hover {
-  background: rgba(255,255,255,0.25);
+  background: #A6A2DC;
   color: white;
   text-decoration: none;
 }
@@ -63,12 +70,9 @@ footer{
   text-decoration: none;
 }
 #sidebar-wrapper.sidebar-toggle {
-  transition: all 0.3s ease-out;
-  margin-left: -200px;
-}
-@media (min-width: 768px) {
-  #sidebar-wrapper.sidebar-toggle {
     transition: 0s;
-    left: 200px;
-  }
+}
+
+.chat-content {
+    margin-left: 250px;
 }

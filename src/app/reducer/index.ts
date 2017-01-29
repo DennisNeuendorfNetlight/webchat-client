@@ -1,22 +1,27 @@
 import { provideStore ,Store, ActionReducer, Action, combineReducers } from "@ngrx/store";
 import { compose } from '@ngrx/core/compose';
-import { chatsReducer, Chats } from "./chats-reducer";
-import { contactsReducer, Contact } from "./contacts-reducer";
+import { chatsReducer } from "./chats-reducer";
+import { contactsReducer } from "./contacts-reducer";
+import { selectedContactReducer } from "./selected-contact-reducer";
+import { Chats, Contact } from '../models';
 
 
 export const reducers = combineReducers({
 	chats: chatsReducer,
-	contacts: contactsReducer
+	contacts: contactsReducer,
+	selectedContact: selectedContactReducer
 });
 
 export interface AppState{
 	chats: Chats,
 	contacts: Contact[]
+	selectedContact: Contact
 };
 
 const initialState: AppState = {
 	chats: {},
-	contacts: []
+	contacts: [],
+	selectedContact: null
 };      
 
 export function reducer(state: AppState = initialState, action: Action) {

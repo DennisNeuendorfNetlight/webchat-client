@@ -4,7 +4,7 @@ import { Actions, Effect } from '@ngrx/effects';
 import { Observable } from 'rxjs/Observable';
 import { IndexedDbService } from '../persistence/indexed-db.service';
 import { SocketIOService } from '../socket/socket-io.service';
-import { Message } from '../models/message';
+import { Message } from '../models';
 import { AddSentMessageAction } from '../reducer/chats-reducer';
 import { Action } from '@ngrx/store';
 

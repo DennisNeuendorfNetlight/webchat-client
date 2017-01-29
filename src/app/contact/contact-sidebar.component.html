@@ -1,7 +1,7 @@
 <div id="sidebar-wrapper" class="sidebar-toggle">
 	<ul class="sidebar-nav">
-		<li *ngFor="let contact of (contacts|async)">
-			<a>{{contact.username|shortenUsername}}</a>
+		<li *ngFor="let contact of (contacts$|async)">
+			<a [class.selected-contact]="contact===selectedContact" (click)="selectContact.next(contact)">{{contact.username|shortenUsername}}</a>
 		</li>
 	</ul>
 </div>
