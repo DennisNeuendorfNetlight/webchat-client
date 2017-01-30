@@ -21,7 +21,6 @@ export class LoginComponent {
                 success => {
                     if(success){
                         router.navigate(['chat']);
-                        //console.log("loggedin");
                     }
             });             
         });

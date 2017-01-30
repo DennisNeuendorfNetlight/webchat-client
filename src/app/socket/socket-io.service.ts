@@ -21,9 +21,8 @@ export class SocketIOService {
 			}
 		});
 		this.socket.on('clients', (clients) => {
-			console.log('clients',clients);
 			if (clients && clients.length > 0){
-				this.appStateStore.dispatch(new AddContactsAction(clients.filter((client) => client.username != this.userdata.username)));
+				this.appStateStore.dispatch(new AddContactsAction(clients.filter((client) => this.userdata && client.username != this.userdata.username)));
 			}
 		});
 		this.socket.on('chat', (message) => {
@@ -33,14 +32,12 @@ export class SocketIOService {
 
 	public setUserdata(userdata) {
 		this.userdata = userdata;
-		console.log('setUserdata',userdata);
 		if (this.userdata && this.sessionId) {
 			this.registerClient();
 		}
 	}
 
 	registerClient() {
-		console.log('registerClient',{ username: this.userdata.username, publicKey: this.userdata.publicKey, sessionId: this.sessionId });
 		this.socket.emit('register', { username: this.userdata.username, publicKey: this.userdata.publicKey, sessionId: this.sessionId });
 	}
 

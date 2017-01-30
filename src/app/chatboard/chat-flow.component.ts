@@ -18,6 +18,5 @@ export class ChatFlowComponent {
 	));
 
     constructor(private appStateStore:Store<any>) {
-		this.messages$.subscribe((message) => console.log('chatmessage',message));
     }
 }
