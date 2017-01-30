@@ -7,7 +7,8 @@ export interface Message{
 
 export interface Contact{
 	username: string;
-	sessionId : string;
+	sessionId: string;
+	publicKey: string;
 }
 
 export interface Chats{

@@ -13,11 +13,10 @@ export class ChatFlowComponent {
 
 	@Input() user:string;
 
-	public messages$: Observable<Message> = this.appStateStore.select('chats').flatMap(chat =>
-		this.appStateStore.select('selectedContact').take(1).map((selectedContact:Contact) => chat[selectedContact.username]?chat[selectedContact.username]:[]
-	));
+	public messages$: Observable<Message> = Observable.combineLatest(this.appStateStore.select('chats'),
+	this.appStateStore.select('selectedContact'),(chats:Chats[],selectedContact:Contact) => selectedContact&&chats[selectedContact.username]?chats[selectedContact.username]:[]
+	);
 
     constructor(private appStateStore:Store<any>) {
-		this.messages$.subscribe((message) => console.log('chatmessage',message));
     }
 }

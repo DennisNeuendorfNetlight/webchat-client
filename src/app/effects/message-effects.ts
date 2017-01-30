@@ -4,9 +4,10 @@ import { Actions, Effect } from '@ngrx/effects';
 import { Observable } from 'rxjs/Observable';
 import { IndexedDbService } from '../persistence/indexed-db.service';
 import { SocketIOService } from '../socket/socket-io.service';
-import { Message } from '../models';
+import { RsaWorkerCommService } from '../rsa/rsa-worker-comm.service';
+import { Message, Contact } from '../models';
 import { AddSentMessageAction, AddReceivedMessageAction } from '../reducer/chats-reducer';
-import { Action } from '@ngrx/store';
+import { Action, Store } from '@ngrx/store';
 
 const SEND_MESSAGE = 'SEND_MESSAGE';
 
@@ -35,15 +36,21 @@ export class MessageEffects {
     private http: Http,
     private actions$: Actions,
 	private db: IndexedDbService,
-	private socket: SocketIOService
+	private socket: SocketIOService,
+	private rsa: RsaWorkerCommService,
+	private appStateStore: Store<any>
   ) { }
 
 	@Effect() send_message$ = this.actions$
 		.ofType(SEND_MESSAGE)
 		.map((action) => <Message>action.payload)
-		.switchMap( (message) => this.db.persistOutgoingMessage(message)
+		.switchMap( (message) => this.db.persistOutgoingMessage(message).flatMap(
+			() => this.appStateStore.select('contacts')
+			.take(1)
+			.map((contacts:Contact[]) => contacts?contacts.find(contact => contact.username === message.recipient):null)
+			.flatMap(contact => this.rsa.encrypt(message,contact.publicKey)))
 			// If successful, dispatch success action with result
-			.do(() => this.socket.send('chat', message))
+			.do((message) => this.socket.send('chat', message))
 			.map(res => (new AddSentMessageAction(message)))
 			// If request fails, dispatch failed action
 			.catch(() => Observable.of({ type: 'SEND_MESSAGE_FAILED' }))
@@ -52,9 +59,10 @@ export class MessageEffects {
 	@Effect() received_message$ = this.actions$
 	.ofType(RECEIVE_MESSAGE)
 	.map((action) => <Message>action.payload)
-	.switchMap( (message) => this.db.persistIncomingMessage(message)
+	.switchMap( (message) => this.rsa.decrypt(message)
+		.do(message => this.db.persistIncomingMessage(message))
 		// If successful, dispatch success action with result
-		.map(res => (new AddReceivedMessageAction(message)))
+		.map(message => (new AddReceivedMessageAction(message)))
 		// If request fails, dispatch failed action
 		.catch(() => Observable.of({ type: 'RECEIVE_MESSAGE_FAILED' }))
 	);
@@ -62,10 +70,13 @@ export class MessageEffects {
 	@Effect() init_message_store$ = this.actions$
       .ofType(INIT_MESSAGE_STORE)
 	  .map((action) => <string>action.payload)
-	  .switchMap( (username) => {
-		  this.socket.setUsername(username);
-		  return this.db.initializeDB(username)
-			.do(message => console.log('message',message))
+	  .switchMap( (username) => 
+		  this.rsa.getKeys(username)
+		  .map(keys => {	
+			  return { username, publicKey: keys.publicKey};
+			})
+		  .do((userdata) => this.socket.setUserdata(userdata))
+		  .flatMap(() => this.db.initializeDB(username))
 			.map(message => {
 				if(username===message.sender){
 					return new AddSentMessageAction(message);
@@ -79,5 +90,5 @@ export class MessageEffects {
 			})		
 			// If request fails, dispatch failed action
 			.catch(() => Observable.of({ type: 'INIT_MESSAGE_FAILED' }))
-	  });
+	  );
 }

@@ -61,7 +61,6 @@ export class IndexedDbService {
 		let persistSubject: Subject<void> = new Subject<void>();
 	   	let tx = this.db.transaction(INCOMING_MESSAGES_KEY, 'readwrite');
 		let store = tx.objectStore(INCOMING_MESSAGES_KEY);
-		console.log('persistIncomingMessage',message);
 		store.put(message);
 		tx.oncomplete = () => {
 			persistSubject.next();

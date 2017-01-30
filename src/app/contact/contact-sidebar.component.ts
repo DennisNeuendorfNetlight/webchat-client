@@ -17,7 +17,7 @@ export class ContactSidebarComponent {
 
     constructor(private appStateStore:Store<any>) {
 		this.selectContact.subscribe((contact) => 
-				!this.selectedContact ? appStateStore.dispatch(new SelectContactAction(contact)) : appStateStore.dispatch(new RemoveSelectedContactAction()))
+			!this.selectedContact || contact.username != this.selectedContact.username ? appStateStore.dispatch(new SelectContactAction(contact)) : appStateStore.dispatch(new RemoveSelectedContactAction()))
 	}
 
 }
