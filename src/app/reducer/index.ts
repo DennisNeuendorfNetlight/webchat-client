@@ -12,7 +12,7 @@ export const reducers = combineReducers({
 	selectedContact: selectedContactReducer
 });
 
-export interface AppState{
+export interface AppState {
 	chats: Chats,
 	contacts: Contact[]
 	selectedContact: Contact

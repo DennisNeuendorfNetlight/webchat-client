@@ -18,14 +18,14 @@ export class IndexedDbService {
 
 	initializeDB(username:string): Observable<Message> {
 		let subject: Subject<Message> = new Subject<Message>();
-		let request = indexedDB.open(username,2);
+		let request = indexedDB.open(username,3);
 			
 		request.onupgradeneeded = () => {
 			// The database did not previously exist, so create object stores and indexes.
 			let db = request.result;
 			if(!db.objectStoreNames.contains(OUTGOING_MESSAGES_KEY)){
 				let outgoingStore = db.createObjectStore(OUTGOING_MESSAGES_KEY, {keyPath: "timestamp"});
-				this.titleIndex = outgoingStore.createIndex('by_receiver', 'receiver', {unique: false});
+				this.titleIndex = outgoingStore.createIndex('by_recipient', 'recipient', {unique: false});
 			}
 			if(!db.objectStoreNames.contains(INCOMING_MESSAGES_KEY)){
 				let incomingStore = db.createObjectStore(INCOMING_MESSAGES_KEY, {keyPath: "timestamp"});				
