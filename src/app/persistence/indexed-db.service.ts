@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { Observable, Subject } from 'rxjs';
+import { Observable, Observer } from 'rxjs';
 import { Message } from '../models';
 
 const OUTGOING_MESSAGES_KEY = 'OutgoingMessages';
@@ -17,105 +17,69 @@ export class IndexedDbService {
 	}
 
 	initializeDB(username:string): Observable<Message> {
-		let subject: Subject<Message> = new Subject<Message>();
-		let request = indexedDB.open(username,3);
-			
-		request.onupgradeneeded = () => {
-			// The database did not previously exist, so create object stores and indexes.
-			let db = request.result;
-			if(!db.objectStoreNames.contains(OUTGOING_MESSAGES_KEY)){
-				let outgoingStore = db.createObjectStore(OUTGOING_MESSAGES_KEY, {keyPath: "timestamp"});
-				this.titleIndex = outgoingStore.createIndex('by_recipient', 'recipient', {unique: false});
+		return new Observable<Message>((observer: Observer<Message>) => {
+			let request = indexedDB.open(username,3);
+				
+			request.onupgradeneeded = () => {
+				// The database did not previously exist, so create object stores and indexes.
+				let db = request.result;
+				if(!db.objectStoreNames.contains(OUTGOING_MESSAGES_KEY)){
+					let outgoingStore = db.createObjectStore(OUTGOING_MESSAGES_KEY, {keyPath: "timestamp"});
+					this.titleIndex = outgoingStore.createIndex('by_recipient', 'recipient', {unique: false});
+				}
+				if(!db.objectStoreNames.contains(INCOMING_MESSAGES_KEY)){
+					let incomingStore = db.createObjectStore(INCOMING_MESSAGES_KEY, {keyPath: "timestamp"});				
+					this.titleIndex = incomingStore.createIndex('by_sender', 'sender', {unique: false});
+				}
 			}
-			if(!db.objectStoreNames.contains(INCOMING_MESSAGES_KEY)){
-				let incomingStore = db.createObjectStore(INCOMING_MESSAGES_KEY, {keyPath: "timestamp"});				
-				this.titleIndex = incomingStore.createIndex('by_sender', 'sender', {unique: false});
+			request.onsuccess = () => {
+				this.db = request.result;
+				Observable.merge(this.getOutgoingMessages(), this.getIncomingMessages()).flatMap((messageList: Message[]) => Observable.from(messageList))
+					.subscribe((message) => observer.next(message),(error) =>observer.error(error),() => observer.complete());
 			}
-		}
-		request.onsuccess = () => {
-			this.db = request.result;
-			Observable.merge(this.getOutgoingMessages(), this.getIncomingMessages()).flatMap((messageList: Message[]) => Observable.from(messageList)).subscribe((message) => subject.next(message),(error) =>subject.error(error),() =>subject.complete());
-		}
-		request.onerror = (event) => alert('Could not initialize IndexedDB');
-		return subject;
+			request.onerror = (event) => alert('Could not initialize IndexedDB');
+		});
 	}
 
-	resetIncomingMessageStore(){
-		let persistSubject: Subject<void> = new Subject<void>();
-	   	let tx = this.db.transaction(OUTGOING_MESSAGES_KEY, 'readwrite');
-		let store = tx.objectStore(OUTGOING_MESSAGES_KEY);
-		store.clear();
-		tx.oncomplete = () => {
-			persistSubject.next();
-			persistSubject.complete();
-		};
-		tx.onerror = (e) => {
-			persistSubject.error(e);
-			persistSubject.complete();
-		};
-		return persistSubject;
+	persistMessage(message: Message, storekey: string): Observable<void>{
+		return new Observable<void>((observer: Observer<void>) => {
+			let tx = this.db.transaction(storekey, 'readwrite');
+			let store = tx.objectStore(storekey);
+			store.put(message);
+			tx.oncomplete = () => {
+				observer.next(null);
+				observer.complete();
+			};
+			tx.onerror = (e) => {
+				observer.error(e);
+				observer.complete();
+			};
+		});
 	}
-	
 
     persistIncomingMessage(message: Message): Observable<void>{
-		let persistSubject: Subject<void> = new Subject<void>();
-	   	let tx = this.db.transaction(INCOMING_MESSAGES_KEY, 'readwrite');
-		let store = tx.objectStore(INCOMING_MESSAGES_KEY);
-		store.put(message);
-		tx.oncomplete = () => {
-			persistSubject.next();
-			persistSubject.complete();
-		};
-		tx.onerror = (e) => {
-			persistSubject.error(e);
-			persistSubject.complete();
-		};
-		return persistSubject;
+		return this.persistMessage(message,INCOMING_MESSAGES_KEY);
     }
 
 	persistOutgoingMessage(message: Message): Observable<void>{
-		let persistSubject: Subject<void> = new Subject<void>();
-	   	let tx = this.db.transaction(OUTGOING_MESSAGES_KEY, 'readwrite');
-		let store = tx.objectStore(OUTGOING_MESSAGES_KEY);
-		store.put(message);
-		tx.oncomplete = () => {
-			persistSubject.next();
-			persistSubject.complete();
-		};
-		tx.onerror = (e) => {
-			persistSubject.error(e);
-			persistSubject.complete();
-		};
-		return persistSubject;
+		return this.persistMessage(message,OUTGOING_MESSAGES_KEY);
     }
 
-	getOutgoingMessages(recipient?):Observable<Message[]> {
-		let subject: Subject<Message[]> = new Subject<Message[]>();
-        let tx = this.db.transaction(OUTGOING_MESSAGES_KEY, 'readonly');
-		let store = tx.objectStore(OUTGOING_MESSAGES_KEY);
-		if(!recipient){
-			store.getAll().onsuccess = (event) => subject.next(event.target.result);
-			store.getAll().onerror = (e) => subject.error(e);
-		}
-		else {
-			//TODO Add filter by recipient
-		}
-		tx.oncomplete = () => subject.complete();
-		return subject;
+	getMessages(storeKey:string, recipient?): Observable<Message[]> {
+		return new Observable<Message[]>((observer: Observer<Message[]>) => {
+			let tx = this.db.transaction(storeKey, 'readonly');
+			let store = tx.objectStore(storeKey);
+			store.getAll().onsuccess = (event) => observer.next(event.target.result);
+			store.getAll().onerror = (e) => observer.error(e);
+			tx.oncomplete = () => observer.complete();
+		});
+	}
+
+	getOutgoingMessages(): Observable<Message[]> {
+		return this.getMessages(OUTGOING_MESSAGES_KEY);
     }
 
-	getIncomingMessages(sender?):Observable<Message[]> {
-		let subject: Subject<Message[]> = new Subject<Message[]>();
-        let tx = this.db.transaction(INCOMING_MESSAGES_KEY, 'readonly');
-		let store = tx.objectStore(INCOMING_MESSAGES_KEY);
-		if(!sender){
-			store.getAll().onsuccess = (event) => subject.next(event.target.result);
-			store.getAll().onerror = (e) => subject.error(e);
-		}
-		else {
-			//TODO Add filter by recipient
-		}
-		tx.oncomplete = () => subject.complete();
-		return subject;
+	getIncomingMessages(sender?): Observable<Message[]> {
+		return this.getMessages(INCOMING_MESSAGES_KEY);
     }
 }
